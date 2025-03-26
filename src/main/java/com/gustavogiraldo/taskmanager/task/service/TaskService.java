@@ -2,6 +2,8 @@ package com.gustavogiraldo.taskmanager.task.service;
 
 import com.gustavogiraldo.taskmanager.task.entity.Task;
 import com.gustavogiraldo.taskmanager.task.repository.TaskRepository;
+import com.gustavogiraldo.taskmanager.user.entity.Role;
+import com.gustavogiraldo.taskmanager.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +24,13 @@ public class TaskService {
         return taskRepository.findById(id);
     }
 
-    public List<Task> getTaskByUserId(String userId) {
-        return taskRepository.findByUserId(userId);
+    public List<Task> getTasksByUser(User user) {
+        if (user.getRole() == Role.ADMIN) {
+            return taskRepository.findAll();
+        }
+        return taskRepository.findByUserId(user.getId());
     }
+
 
     public Task saveTask(Task task) {
         return taskRepository.save(task);
