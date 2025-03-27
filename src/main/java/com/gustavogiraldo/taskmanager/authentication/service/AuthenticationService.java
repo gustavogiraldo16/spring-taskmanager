@@ -45,7 +45,7 @@ public class AuthenticationService {
 
     public AuthResponse authenticate(AuthRequest request) {
         String exceptionMessage = "credenciales inválidas";
-
+        
         User user = userRepository.findByEmail(request.getUsername())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, exceptionMessage));
 
