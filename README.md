@@ -47,8 +47,8 @@ La estructura del proyecto sigue una arquitectura en capas, dividida por módulo
 
 ### 1. Clonar el repositorio
 ```sh
-git clone https://github.com/tu-usuario/taskmanager.git
-cd taskmanager
+git clone https://github.com/gustavogiraldo16/spring-taskmanager.git
+cd spring-taskmanager
 ```
 
 ### 2. Configurar la base de datos
