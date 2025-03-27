@@ -33,6 +33,9 @@ public class TaskService {
 
 
     public Task saveTask(Task task) {
+        if (task.getUser() == null) {
+            throw new IllegalArgumentException("El usuario no puede estar vacio");
+        }
         return taskRepository.save(task);
     }
 
