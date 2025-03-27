@@ -44,8 +44,15 @@ public class AuthenticationService {
     }
 
     public AuthResponse authenticate(AuthRequest request) {
+        String exceptionMessage = "credenciales inválidas";
+
         User user = userRepository.findByEmail(request.getUsername())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, exceptionMessage));
+
+        // Verificar manualmente la contraseña
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, exceptionMessage);
+        }
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
