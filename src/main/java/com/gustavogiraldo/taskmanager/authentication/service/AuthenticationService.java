@@ -39,7 +39,7 @@ public class AuthenticationService {
         user.setRole(Role.USER); // Asignar rol por defecto
         userRepository.save(user);
 
-        String token = generateJwtToken(user);
+        String token = jwtUtil.getToken(user);
         return new AuthResponse(token);
     }
 
@@ -58,15 +58,7 @@ public class AuthenticationService {
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
 
-        String token = generateJwtToken(user);
+        String token = jwtUtil.getToken(user);
         return new AuthResponse(token);
-    }
-
-    private String generateJwtToken(User user) {
-        return jwtUtil.generateToken(new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name())) // Convertimos el rol a autoridad
-        ));
     }
 }
