@@ -18,7 +18,7 @@ import java.util.List;
 
 @SecurityRequirement(name = "BearerAuth") // Indica que este controlador requiere autenticación con JWT
 @RestController
-@RequestMapping("/api/task")
+@RequestMapping("/api/tasks")
 @RequiredArgsConstructor
 @Tag(name = "Task", description = "API para gestionar tareas") // Etiqueta de Swagger para el grupo de endpoints
 public class TaskController {
@@ -28,6 +28,7 @@ public class TaskController {
     @Operation(summary = "Obtener todas las tareas del usuario autenticado")
     @GetMapping
     public ResponseEntity<List<TaskResponseDTO>> getTasks(@AuthenticationPrincipal User user) {
+        System.out.println("usuario " + user.getId());
         List<Task> tasks = taskService.getTasksByUser(user);
         List<TaskResponseDTO> taskDTOs = tasks.stream()
                 .map(this::convertToTaskDTO)
