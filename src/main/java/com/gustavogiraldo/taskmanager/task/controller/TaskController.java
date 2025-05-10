@@ -25,11 +25,15 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    @Operation(summary = "Obtener todas las tareas del usuario autenticado")
+    @Operation(summary = "Obtener todas las tareas del usuario autenticado, con filtros opcionales por estado y prioridad")
     @GetMapping
-    public ResponseEntity<List<TaskResponseDTO>> getTasks(@AuthenticationPrincipal User user) {
+    public ResponseEntity<List<TaskResponseDTO>> getTasks(
+            @AuthenticationPrincipal User user,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String priority
+    ) {
         System.out.println("usuario " + user.getId());
-        List<Task> tasks = taskService.getTasksByUser(user);
+        List<Task> tasks = taskService.getTasksByUser(user, status, priority);
         List<TaskResponseDTO> taskDTOs = tasks.stream()
                 .map(this::convertToTaskDTO)
                 .toList();
@@ -48,6 +52,7 @@ public class TaskController {
     @Operation(summary = "Crear una nueva tarea")
     @PostMapping
     public ResponseEntity<TaskResponseDTO> createTask(@AuthenticationPrincipal User user, @RequestBody Task task) {
+        System.out.println("usuario " + user.getId());
         task.setUser(user);
         Task saveTask = taskService.saveTask(task);
         return ResponseEntity.status(HttpStatus.CREATED).body(convertToTaskDTO(saveTask));
