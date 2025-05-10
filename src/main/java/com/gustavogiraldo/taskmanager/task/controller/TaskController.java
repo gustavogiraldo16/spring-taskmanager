@@ -1,5 +1,6 @@
 package com.gustavogiraldo.taskmanager.task.controller;
 
+import com.gustavogiraldo.taskmanager.task.dto.TaskRequestDTO;
 import com.gustavogiraldo.taskmanager.task.dto.TaskResponseDTO;
 import com.gustavogiraldo.taskmanager.task.entity.Task;
 import com.gustavogiraldo.taskmanager.task.service.TaskService;
@@ -8,6 +9,7 @@ import com.gustavogiraldo.taskmanager.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +34,6 @@ public class TaskController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String priority
     ) {
-        System.out.println("usuario " + user.getId());
         List<Task> tasks = taskService.getTasksByUser(user, status, priority);
         List<TaskResponseDTO> taskDTOs = tasks.stream()
                 .map(this::convertToTaskDTO)
@@ -51,8 +52,11 @@ public class TaskController {
 
     @Operation(summary = "Crear una nueva tarea")
     @PostMapping
-    public ResponseEntity<TaskResponseDTO> createTask(@AuthenticationPrincipal User user, @RequestBody Task task) {
-        System.out.println("usuario " + user.getId());
+    public ResponseEntity<TaskResponseDTO> createTask(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody TaskRequestDTO requestDTO
+    ) {
+        Task task = convertToEntity(requestDTO);
         task.setUser(user);
         Task saveTask = taskService.saveTask(task);
         return ResponseEntity.status(HttpStatus.CREATED).body(convertToTaskDTO(saveTask));
@@ -60,10 +64,16 @@ public class TaskController {
 
     @Operation(summary = "Actualizar una tarea existente")
     @PutMapping("/{id}")
-    public ResponseEntity<TaskResponseDTO> updateTask(@AuthenticationPrincipal User user, @PathVariable String id, @RequestBody Task task) {
+    public ResponseEntity<TaskResponseDTO> updateTask(
+            @AuthenticationPrincipal User user,
+            @PathVariable String id,
+            @Valid @RequestBody TaskRequestDTO requestDTO
+    ) {
         if(!taskService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
+
+        Task task = convertToEntity(requestDTO);
         task.setId(id);
         task.setUser(user);
         Task saveTask = taskService.saveTask(task);
@@ -100,4 +110,16 @@ public class TaskController {
 
         return dto;
     }
+
+    // Método para convertir un DTO en una tarea
+    private Task convertToEntity(TaskRequestDTO dto) {
+        Task task = new Task();
+        task.setTitle(dto.getTitle());
+        task.setDescription(dto.getDescription());
+        task.setStatus(dto.getStatus());
+        task.setDueDate(dto.getDueDate());
+        task.setPriority(dto.getPriority());
+        return task;
+    }
+
 }
